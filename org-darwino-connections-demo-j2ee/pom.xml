@@ -6,8 +6,10 @@
 		<artifactId>darwino-ibm-connections</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-
-	<artifactId>org-darwino-connections</artifactId>
+	<artifactId>org-darwino-connections-demo-j2ee</artifactId>
+	
+	<packaging>war</packaging>
+	<name>IBM Connections Demo</name>
 
 	<dependencies>
 		<dependency>
@@ -28,12 +30,26 @@
 			<version>2.2.1</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		<!--  External dependencies - Smallest possible Darwino lib... -->
+	
 		<dependency>
-		    <groupId>com.darwino</groupId>
-		    <artifactId>dwo-commons</artifactId>
-		    <version>1.5.1</version>
+			<groupId>org.darwino</groupId>
+			<artifactId>org-darwino-connections</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+        <finalName>darwino-connections</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
 </project>
