@@ -1,0 +1,29 @@
+{
+	"name": "darwinodemo",
+	"description": "Darwino Connections Demo",
+	"type":"community_widget",
+	"urls":{
+	},
+	"payload": {
+		"defId": "Darwino Connections",
+		"showInPalette": "true",
+		"primaryWidget": "false",
+		"modes": "view",
+		"themes": "wpthemeThin wpthemeNarrow wpthemeWide wpthemeBanner",
+		"url": "https://apps.collabservnext.com/connections/resources/web/com.ibm.social.urliWidget.web.resources/widget/urlWidget.xml",
+		"itemSet": [
+			{
+				"name": "url",
+				"value": "https://localhost:8443/darwino-connections/cloud/communityapp.html"
+			},
+			{
+				"name": "width",
+				"value": "100%"
+			},
+			{
+				"name": "height",
+				"value": "400px"
+			}
+		]
+	}
+}

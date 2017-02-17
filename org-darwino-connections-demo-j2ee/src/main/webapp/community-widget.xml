@@ -1,0 +1,18 @@
+<iw:iwidget name="Dojo Test" xmlns:iw="http://www.ibm.com/xmlns/prod/iWidget">
+
+	<iw:content mode="view">
+<![CDATA[
+<iframe 
+	src='/darwino-connections/onprem/iwidget.jsp'
+	id='community_widget' 
+	name='community_widget' 
+	frameborder='0'
+	marginheight='0'
+	marginwidth='0'
+	scrolling='yes'
+	>
+</iframe>
+]]>
+	</iw:content>
+
+</iw:iwidget>

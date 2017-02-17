@@ -27,6 +27,7 @@ import org.darwino.ibm.connections.ConnectionsSession;
 import com.darwino.commons.httpclnt.HttpClient;
 import com.darwino.commons.json.JsonException;
 import com.darwino.commons.util.StringUtil;
+import com.darwino.commons.util.text.HtmlTextUtil;
 
 /**
  * Get the IBM Connections NavBar.
@@ -77,7 +78,7 @@ public class NavBarOnPrem {
 	public String composeFinalPage() {
 		String finalPage = page;
 		if(title!=null) {
-			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_HEAD_START -->", title);
+			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_HEAD_START -->", HtmlTextUtil.toHTMLContentString(title, false));
 		}
 		if(body!=null) {
 			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_MAIN -->", body);

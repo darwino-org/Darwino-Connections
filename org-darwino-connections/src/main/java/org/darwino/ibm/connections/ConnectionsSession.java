@@ -39,6 +39,7 @@ import com.darwino.commons.Platform;
 import com.darwino.commons.httpclnt.HttpClient;
 import com.darwino.commons.httpclnt.HttpClient.Authenticator;
 import com.darwino.commons.httpclnt.HttpClientService;
+import com.darwino.commons.json.JsonException;
 import com.darwino.commons.util.StringUtil;
 
 
@@ -253,5 +254,14 @@ public class ConnectionsSession {
 		String uri = (String)getHttpSession().getAttribute(KEY_REDIRECT);
 		getHttpSession().removeAttribute(KEY_REDIRECT);
 		return uri;
+	}
+	
+	//
+	// Some services to call...
+	//
+	public Object getOpenSocialProfile() throws JsonException {
+		HttpClient c = createHttpClient();
+		String auth = getConnections().useOAuth() ? "oauth" : "basic"; 
+		return c.getAsJson(new String[]{"connections","opensocial",auth,"rest","people","@me","@self"});
 	}
 }

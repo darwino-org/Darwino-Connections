@@ -1,9 +1,14 @@
 <h1>Welcome to the IBM Connections demo app</h1>
 
 <p>
-You are running: <b><%= org.darwino.ibm.connections.ConnectionsSession.get().getConnections().toString()%></b>
+You are running: <b><%=org.darwino.ibm.connections.ConnectionsSession.get().getConnections().toString()%></b>
 </p>
 
 <p>
-You are currently connected as: <b><%= org.darwino.ibm.connections.ConnectionsSession.get().getCurrentUser().toString()%></b>
+You are currently connected as: <b><%=org.darwino.ibm.connections.ConnectionsSession.get().getCurrentUser().toString()%></b>
+</p>
+
+<p>
+You OpenSocial profile:
+<code><pre><%=org.darwino.ibm.connections.ConnectionsSession.get().getOpenSocialProfile().toString()%></pre></code>
 </p>

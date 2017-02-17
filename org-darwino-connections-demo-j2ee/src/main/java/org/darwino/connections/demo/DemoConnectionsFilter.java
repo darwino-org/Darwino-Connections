@@ -35,13 +35,18 @@ import org.darwino.ibm.connections.ConnectionsFilter;
 import org.darwino.ibm.connections.cloud.ConnectionsCloud;
 import org.darwino.ibm.connections.onprem.ConnectionsOnPrem;
 
+import com.darwino.commons.util.PathUtil;
 import com.darwino.commons.util.StringUtil;
 import com.darwino.commons.util.io.StreamUtil;
 
 /**
  * IBM Connections Filter.
+ * 
+ * This filter works on either the Connections server (WAS) or an external server (TOMCAT)
+ * In the first case, it assumes that the app is SSO with Connections and thus share the JEE credentials
+ * On the second case, it uses OAuth to find authenticate users and then call the services. 
  */
-public class DemoFilter extends ConnectionsFilter {
+public class DemoConnectionsFilter extends ConnectionsFilter {
 	
 	public static final String SESSION_ENV		= "_lconn_env_";
 	
@@ -53,7 +58,7 @@ public class DemoFilter extends ConnectionsFilter {
 	private ConnectionsOnPrem connectionsOnPremOAuth;
 	private ConnectionsOnPrem connectionsOnPremSSO;
 	
-	public DemoFilter() {
+	public DemoConnectionsFilter() {
 	}
 	
 	@Override
@@ -69,7 +74,7 @@ public class DemoFilter extends ConnectionsFilter {
 			if(StringUtil.isNotEmpty(home)) {
 				String sp = request.getServletPath();
 				String pi = request.getPathInfo();
-				String s = sp + pi;
+				String s = PathUtil.concat(sp,pi);
 				if(s.startsWith("/onpremoauth")) {
 					envCode = ENV_ONPREM_OAUTH;
 				} else {

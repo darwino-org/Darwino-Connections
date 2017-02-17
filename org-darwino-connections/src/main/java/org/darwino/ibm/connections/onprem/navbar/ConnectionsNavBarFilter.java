@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.darwino.ibm.connections.ConnectionsEnvironment;
 import org.darwino.ibm.connections.ConnectionsSession;
 
 import com.darwino.commons.json.JsonException;
@@ -46,9 +47,9 @@ import com.darwino.commons.json.JsonException;
 /**
  * IBM Connections on-prem navbar filter.
  */
-public class NavBarFilter implements Filter {
+public class ConnectionsNavBarFilter implements Filter {
 
-	public NavBarFilter() {
+	public ConnectionsNavBarFilter() {
 	}
 
 	@Override
@@ -71,9 +72,9 @@ public class NavBarFilter implements Filter {
 	
 				NavBarServletResponse navBarResp = new NavBarServletResponse(response);
 				chain.doFilter(request, navBarResp);
-				
+
 				String body = navBarResp.getResponseAsString();
-				navBar.setBody(body);
+				initNavBar(navBar, body);
 				
 				response.setStatus(200);
 				response.setCharacterEncoding("UTF-8");
@@ -86,13 +87,16 @@ public class NavBarFilter implements Filter {
 
 		chain.doFilter(request, response);
 	}
+	
+	protected void initNavBar(NavBarOnPrem navBar, String body) {
+		navBar.setBody(body);
+	}
 
 	protected boolean shouldDisplayNavBar(HttpServletRequest request) {
 		 // We inject the on prem navbar id we are onprem, installed in the
 		 // same server (not using oauth)
-		return true;
-//		 ConnectionsFactory f = ConnectionsFactory.get();
-//		 return !f.isCloud() && !f.useOAuth();
+		 ConnectionsEnvironment f = ConnectionsSession.get().getConnections();
+		 return !f.isCloud() && !f.useOAuth();
 	}
 
 	private static class NavBarServletResponse extends HttpServletResponseWrapper {

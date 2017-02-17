@@ -9,7 +9,7 @@
 	<!--  IBM Connections Filter --> 	
 	<filter>
     	<filter-name>ConnectionsFilter</filter-name>
-    	<filter-class>org.darwino.connections.demo.DemoFilter</filter-class>
+    	<filter-class>org.darwino.connections.demo.DemoConnectionsFilter</filter-class>
 	</filter>
 	<filter-mapping>
     	<filter-name>ConnectionsFilter</filter-name>
@@ -21,7 +21,7 @@
 	<!--  IBM Connections OnPrem filter --> 	
 	<filter>
     	<filter-name>ConnectionsNavBarFilter</filter-name>
-    	<filter-class>org.darwino.ibm.connections.onprem.navbar.NavBarFilter</filter-class>
+    	<filter-class>org.darwino.connections.demo.DemoConnectionsNavBarFilter</filter-class>
 	</filter>
 	<filter-mapping>
     	<filter-name>ConnectionsNavBarFilter</filter-name>
