@@ -34,7 +34,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.darwino.ibm.connections.ConnectionsFactory;
+import org.darwino.ibm.connections.ConnectionsEnvironment;
 import org.darwino.ibm.connections.ConnectionsSession;
 import org.darwino.ibm.connections.ConnectionsUser;
 
@@ -89,10 +89,12 @@ public class IBMOAuth20Dance {
 	
 	public static final String OAUTH2_CALLBACK	= "/dwo_auth_ibmconn_oa2";
 
+	private ConnectionsEnvironment connections;
 	private String clientId;
 	private String clientSecret;
 	
-	public IBMOAuth20Dance(String clientId, String clientSecret) {
+	public IBMOAuth20Dance(ConnectionsEnvironment connections, String clientId, String clientSecret) {
+		this.connections = connections;
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}
@@ -114,20 +116,20 @@ public class IBMOAuth20Dance {
 	}
 
 	public boolean isCloud() {
-		return ConnectionsFactory.get().isCloud();
+		return connections.isCloud();
 	}
 	
     public String getAuthorizationURL() {
     	if(isCloud()) {
-        	return PathUtil.concat(ConnectionsFactory.get().getUrl(), "manage/oauth2/authorize");
+        	return PathUtil.concat(connections.getUrl(), "manage/oauth2/authorize");
     	}
-    	return PathUtil.concat(ConnectionsFactory.get().getUrl(), "oauth2/endpoint/connectionsProvider/authorize");
+    	return PathUtil.concat(connections.getUrl(), "oauth2/endpoint/connectionsProvider/authorize");
     }
     public String getAccessTokenURL() {
     	if(isCloud()) {
-        	return PathUtil.concat(ConnectionsFactory.get().getUrl(), "manage/oauth2/token");
+        	return PathUtil.concat(connections.getUrl(), "manage/oauth2/token");
     	}
-    	return PathUtil.concat(ConnectionsFactory.get().getUrl(), "oauth2/endpoint/connectionsProvider/token");
+    	return PathUtil.concat(connections.getUrl(), "oauth2/endpoint/connectionsProvider/token");
     }
 
 	
@@ -224,9 +226,9 @@ public class IBMOAuth20Dance {
 		try {
 			// Access the current user for authentication
 			OAuth2Authenticator auth = new OAuth2Authenticator(token.getAccessToken());
-			String url = ConnectionsFactory.get().getUrl();
+			String url = connections.getUrl();
 			HttpClient testClient = Platform.getService(HttpClientService.class).createHttpClient(url,auth);
-			if(ConnectionsFactory.get().isTrustSSLCertificates()) {
+			if(connections.isTrustSSLCertificates()) {
 				testClient.setTrustAllSSLCertificates(true);
 			}
 

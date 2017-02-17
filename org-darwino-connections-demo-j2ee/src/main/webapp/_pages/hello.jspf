@@ -1,7 +1,7 @@
 <h1>Welcome to the IBM Connections demo app</h1>
 
 <p>
-You are running: <b><%= org.darwino.ibm.connections.ConnectionsFactory.get().toString()%></b>
+You are running: <b><%= org.darwino.ibm.connections.ConnectionsSession.get().getConnections().toString()%></b>
 </p>
 
 <p>

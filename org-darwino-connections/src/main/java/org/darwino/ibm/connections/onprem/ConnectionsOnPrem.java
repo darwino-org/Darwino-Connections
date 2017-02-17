@@ -27,14 +27,14 @@ import java.security.Principal;
 
 import javax.servlet.ServletException;
 
-import org.darwino.ibm.connections.ConnectionsFactory;
+import org.darwino.ibm.connections.ConnectionsEnvironment;
 import org.darwino.ibm.connections.ConnectionsSession;
 import org.darwino.ibm.connections.ConnectionsUser;
 
 /**
  * IBM Connections on-prem factory.
  */
-public class ConnectionsOnPrem extends ConnectionsFactory {
+public class ConnectionsOnPrem extends ConnectionsEnvironment {
 	
 	// Single sign-on
 	public ConnectionsOnPrem(String url) {

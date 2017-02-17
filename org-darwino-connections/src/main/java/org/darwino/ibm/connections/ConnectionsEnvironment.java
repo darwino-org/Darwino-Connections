@@ -33,12 +33,7 @@ import com.darwino.commons.util.StringUtil;
 /**
  * IBM Connections factory.
  */
-public abstract class ConnectionsFactory {
-	
-	private static ConnectionsFactory instance;
-	public static ConnectionsFactory get() {
-		return instance;
-	}
+public abstract class ConnectionsEnvironment {
 	
 	private String url;
 
@@ -47,17 +42,16 @@ public abstract class ConnectionsFactory {
 
 	private IBMOAuth20Dance dance;	
 	
-	protected ConnectionsFactory(String url, String clientId, String clientSecret) {
-		ConnectionsFactory.instance = this;
+	protected ConnectionsEnvironment(String url, String clientId, String clientSecret) {
 		this.url = url;
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 
 		if(StringUtil.isNotEmpty(clientId) && StringUtil.isNotEmpty(clientSecret)) {
-			this.dance = new IBMOAuth20Dance(clientId, clientSecret) {
+			this.dance = new IBMOAuth20Dance(this,clientId, clientSecret) {
 				@Override
 				public boolean isTrustAllSSLCertificates() {
-					return ConnectionsFactory.this.isTrustSSLCertificates();
+					return ConnectionsEnvironment.this.isTrustSSLCertificates();
 				}
 			};
 		}

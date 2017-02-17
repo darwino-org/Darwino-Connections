@@ -22,11 +22,8 @@
 
 package org.darwino.ibm.connections;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,38 +34,25 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.darwino.ibm.connections.cloud.ConnectionsCloud;
-import org.darwino.ibm.connections.onprem.ConnectionsOnPrem;
 import org.darwino.ibm.connections.util.IBMOAuth20Dance;
 
-import com.darwino.commons.util.StringUtil;
+import com.darwino.commons.Platform;
+import com.darwino.commons.httpclnt.HttpBinaryData;
+import com.darwino.commons.httpclnt.HttpClient;
+import com.darwino.commons.httpclnt.HttpClientService;
 import com.darwino.commons.util.io.StreamUtil;
 
 /**
  * IBM Connections Filter.
  */
-public class ConnectionsFilter implements Filter {
-	
+public abstract class ConnectionsFilter implements Filter {
+
 	public ConnectionsFilter() {
 	}
-
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		// Initialize the Connections Platform here or in a derived class!
-		//createConnectionsOnPremOAuth();
-		//createConnectionsOnPremSSO();
 	}
-	protected void createConnectionsCloudOAuth(FilterConfig filterConfig) {
-		throw new IllegalStateException("Not implemented");
-	}
-	protected void createConnectionsOnPremOAuth(FilterConfig filterConfig) {
-		throw new IllegalStateException("Not implemented");
-	}
-	protected void createConnectionsOnPremSSO(FilterConfig filterConfig) {
-		throw new IllegalStateException("Not implemented");
-	}
-	
 
 	@Override
 	public void destroy() {
@@ -82,10 +66,13 @@ public class ConnectionsFilter implements Filter {
 		if(ConnectionsSession.isAvailable()) {
 			chain.doFilter(request, response);
 		} else {
-			ConnectionsSession s = new ConnectionsSession(request, response);
+			// Find the proper factory
+			ConnectionsEnvironment env = findConnectionsEnvironment(request);
+			
+			ConnectionsSession s = new ConnectionsSession(env,request, response);
 			ConnectionsSession.push(s);
 			try {
-				IBMOAuth20Dance dance = ConnectionsFactory.get().getDance();
+				IBMOAuth20Dance dance = env.getDance();
 				if(dance!=null && dance.isCallbackRequest(s)) {
 					dance.processCallbackRequest(s);
 				} else {
@@ -94,6 +81,16 @@ public class ConnectionsFilter implements Filter {
 							return;
 						}
 					}
+					HttpClient c = Platform.getService(HttpClientService.class).createHttpClient("https://tglc5demo.triloggroup.com","amass","floflo");
+					c.setTrustAllSSLCertificates(true);
+			    	//https://tglc5demo.triloggroup.com/communities/service/atom/communities/my?ps=1
+					try {
+						HttpBinaryData bd = c.getAsBinaryData(new String[]{"communities","service","atom","communities","my"});
+						StreamUtil.copyStream(bd.getInputStream(), new FileOutputStream("c:\\temp\\xmlconn.xml"));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					chain.doFilter(request, response);
 				}
 			} finally {
@@ -101,6 +98,8 @@ public class ConnectionsFilter implements Filter {
 			}
 		}
 	}
+
+	protected abstract ConnectionsEnvironment findConnectionsEnvironment(HttpServletRequest request);
 	
 	protected boolean shouldAuthenticate(HttpServletRequest request) {
 		return true;

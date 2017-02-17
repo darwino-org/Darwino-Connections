@@ -17,6 +17,17 @@
     	<dispatcher>REQUEST</dispatcher>
     	<dispatcher>FORWARD</dispatcher>
    	</filter-mapping>
+
+	<!--  IBM Connections OnPrem filter --> 	
+	<filter>
+    	<filter-name>ConnectionsNavBarFilter</filter-name>
+    	<filter-class>org.darwino.ibm.connections.onprem.navbar.NavBarFilter</filter-class>
+	</filter>
+	<filter-mapping>
+    	<filter-name>ConnectionsNavBarFilter</filter-name>
+    	<url-pattern>/onprem/*</url-pattern>
+    	<dispatcher>REQUEST</dispatcher>
+   	</filter-mapping>
 					
 	<!-- Welcome pages -->
   	<welcome-file-list>
@@ -24,24 +35,27 @@
   	</welcome-file-list>
 	
 	<!-- Enable this to use the J2EE CONTAINER security -->
-<!-- 	
+
 	<security-role>
-		<role-name>user</role-name>
+		<role-name>person</role-name>
 	</security-role>
 	<security-constraint>
 		<web-resource-collection>
-			<web-resource-name>ApplicationRoot</web-resource-name>
-			<url-pattern>/*</url-pattern>
+			<web-resource-name>ConnectionsOnPrem</web-resource-name>
+			<url-pattern>/onprem/*</url-pattern>
 		</web-resource-collection>
  		<auth-constraint>
-			<role-name>user</role-name>
+			<role-name>person</role-name>
 		</auth-constraint>
 	</security-constraint>
 
 	<login-config>
-		<auth-method>BASIC</auth-method>
+		<auth-method>FORM</auth-method>
 		<realm-name>Darwino Connections Demo</realm-name>
+		<form-login-config>
+			<form-login-page>/connlogin.jsp</form-login-page>
+			<form-error-page>/connlogin.jsp?error=true</form-error-page>
+		</form-login-config>
 	</login-config>
- -->
-   	  	
+	
 </web-app>

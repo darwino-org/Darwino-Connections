@@ -27,9 +27,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.darwino.ibm.connections.ConnectionsEnvironment;
 import org.darwino.ibm.connections.ConnectionsFilter;
 import org.darwino.ibm.connections.cloud.ConnectionsCloud;
 import org.darwino.ibm.connections.onprem.ConnectionsOnPrem;
@@ -41,27 +42,68 @@ import com.darwino.commons.util.io.StreamUtil;
  * IBM Connections Filter.
  */
 public class DemoFilter extends ConnectionsFilter {
+	
+	public static final String SESSION_ENV		= "_lconn_env_";
+	
+	public static final int	ENV_CLOUD			= 1;
+	public static final int	ENV_ONPREM_OAUTH	= 2;
+	public static final int	ENV_ONPREM_SSO		= 3;
 
+	private ConnectionsCloud connectionsCloud;
+	private ConnectionsOnPrem connectionsOnPremOAuth;
+	private ConnectionsOnPrem connectionsOnPremSSO;
+	
 	public DemoFilter() {
 	}
 	
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		super.init(filterConfig);
-
-		
-		// If running in TOMCAT, then we can be on prem or on the cloud
-		//   -> The app is not deployed on a Connections server
-		// Else, we assume that the app is on WAS, running on a Connections server
-		String home = System.getProperty("catalina.home");
-		if(StringUtil.isNotEmpty(home)) {
-			// TOMCAT
-			createConnectionsCloudOAuth(filterConfig);
-			createConnectionsOnPremOAuth(filterConfig);
-		} else {
-			// WEBSPHERE
-			createConnectionsOnPremSSO(filterConfig);
+	protected ConnectionsEnvironment findConnectionsEnvironment(HttpServletRequest request) {
+		HttpSession session = request.getSession(true);
+		Integer envCode = (Integer)session.getAttribute(SESSION_ENV);
+		if(envCode==null) {
+			// Find the environment
+			// If running in TOMCAT, then we can be on prem or on the cloud
+			//   -> The app is not deployed on a Connections server
+			// Else, we assume that the app is on WAS, running on a Connections server
+			String home = System.getProperty("catalina.home");
+			if(StringUtil.isNotEmpty(home)) {
+				String sp = request.getServletPath();
+				String pi = request.getPathInfo();
+				String s = sp + pi;
+				if(s.startsWith("/onpremoauth")) {
+					envCode = ENV_ONPREM_OAUTH;
+				} else {
+					envCode = ENV_CLOUD;
+				}
+			} else {
+				// WEBSPHERE
+				envCode = ENV_ONPREM_SSO;
+			}
+			session.setAttribute(SESSION_ENV,envCode);
 		}
+		
+		switch(envCode) {
+			case ENV_CLOUD: {
+				if(connectionsCloud==null) {
+					connectionsCloud = createConnectionsCloudOAuth();
+				}
+				return connectionsCloud;
+			}
+			case ENV_ONPREM_OAUTH: {
+				if(connectionsOnPremOAuth==null) {
+					connectionsOnPremOAuth = createConnectionsOnPremOAuth();
+				}
+				return connectionsOnPremOAuth;
+			}
+			case ENV_ONPREM_SSO: {
+				if(connectionsOnPremSSO==null) {
+					connectionsOnPremSSO = createConnectionsOnPremSSO();
+				}
+				return connectionsOnPremSSO;
+			}
+		}
+		
+		throw new IllegalStateException();
 	}
 	
 	//
@@ -79,8 +121,7 @@ public class DemoFilter extends ConnectionsFilter {
 	// Note that Darwino properties makes it easier as well, as it handles external properties.
 	//
 	
-	@Override
-	protected void createConnectionsCloudOAuth(FilterConfig filterConfig) {
+	protected ConnectionsCloud createConnectionsCloudOAuth() {
 		try {
 			String home = System.getProperty("catalina.home");
 			if(StringUtil.isNotEmpty(home)) {
@@ -93,7 +134,7 @@ public class DemoFilter extends ConnectionsFilter {
 						String url = (String)env.get("connections.cloud.url");	
 						String clientId = (String)env.get("connections.cloud.clientId");
 						String clientSecret = (String)env.get("connections.cloud.clientSecret");
-						new ConnectionsCloud(url, clientId, clientSecret);
+						return new ConnectionsCloud(url, clientId, clientSecret);
 					} finally {
 						StreamUtil.close(is);
 					}
@@ -102,10 +143,10 @@ public class DemoFilter extends ConnectionsFilter {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 	
-	@Override
-	protected void createConnectionsOnPremOAuth(FilterConfig filterConfig) {
+	protected ConnectionsOnPrem createConnectionsOnPremOAuth() {
 		try {
 			String home = System.getProperty("catalina.home");
 			if(StringUtil.isNotEmpty(home)) {
@@ -118,7 +159,7 @@ public class DemoFilter extends ConnectionsFilter {
 						String url = (String)env.get("connections.onprem.url");	
 						String clientId = (String)env.get("connections.onprem.clientId");
 						String clientSecret = (String)env.get("connections.onprem.clientSecret");
-						new ConnectionsOnPrem(url, clientId, clientSecret);
+						return new ConnectionsOnPrem(url, clientId, clientSecret);
 					} finally {
 						StreamUtil.close(is);
 					}
@@ -127,17 +168,17 @@ public class DemoFilter extends ConnectionsFilter {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 	
-	@Override
-	protected void createConnectionsOnPremSSO(FilterConfig filterConfig) {
+	protected ConnectionsOnPrem createConnectionsOnPremSSO() {
 		try {
 			// We hard code the machine here... 
 			String url = "https://tglc5demo.triloggroup.com";	
-			new ConnectionsOnPrem(url);
+			return new ConnectionsOnPrem(url);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
-	
 }

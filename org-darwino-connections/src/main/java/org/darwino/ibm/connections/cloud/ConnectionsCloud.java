@@ -26,14 +26,14 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.darwino.ibm.connections.ConnectionsFactory;
+import org.darwino.ibm.connections.ConnectionsEnvironment;
 import org.darwino.ibm.connections.ConnectionsSession;
 
 
 /**
  * IBM Connections cloud factory.
  */
-public class ConnectionsCloud extends ConnectionsFactory {
+public class ConnectionsCloud extends ConnectionsEnvironment {
 
 	// callback
 	//   https://localhost:8080/darwino-connections/dwo_auth_ibmconn_oa2
