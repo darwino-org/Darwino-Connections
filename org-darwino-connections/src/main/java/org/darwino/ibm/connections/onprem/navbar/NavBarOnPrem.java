@@ -45,16 +45,7 @@ public class NavBarOnPrem {
 	}
 	
 	private String readNavBar() throws JsonException {
-//		try {
-//			//https://tglc5demo.triloggroup.com/search/web/jsp/containers/headerfooter.jsp
-//			File f = new File("c:\\temp\\headerfooter.html");
-//			String s = StreamUtil.readString(f);
-//			return s;
-//		} catch(IOException ex) {
-//			throw new JsonException(ex);
-//		}
 		HttpClient c = session.createHttpClient();
-		
 		String s = c.getAsText(new String[]{"search","web","jsp","containers","headerfooter.jsp"});
 		return s;
 	}
@@ -78,7 +69,7 @@ public class NavBarOnPrem {
 	public String composeFinalPage() {
 		String finalPage = page;
 		if(title!=null) {
-			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_HEAD_START -->", HtmlTextUtil.toHTMLContentString(title, false));
+			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_HEAD_START -->", "<title>"+HtmlTextUtil.toHTMLContentString(title, false)+"</title>");
 		}
 		if(body!=null) {
 			finalPage = StringUtil.replaceFirst(finalPage, "<!-- LCONN_CONTAINER_MAIN -->", body);

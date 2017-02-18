@@ -23,8 +23,6 @@
 package org.darwino.ibm.connections;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -37,10 +35,8 @@ import org.darwino.ibm.connections.util.OAuth20Token;
 
 import com.darwino.commons.Platform;
 import com.darwino.commons.httpclnt.HttpClient;
-import com.darwino.commons.httpclnt.HttpClient.Authenticator;
 import com.darwino.commons.httpclnt.HttpClientService;
 import com.darwino.commons.json.JsonException;
-import com.darwino.commons.util.StringUtil;
 
 
 /**
@@ -48,67 +44,6 @@ import com.darwino.commons.util.StringUtil;
  */
 public class ConnectionsSession {
 	
-	@SuppressWarnings("serial")
-	public static class LtpaToken2Authenticator extends Authenticator {
-		private String jsessionId;
-		private String ltpaToken2;
-		public LtpaToken2Authenticator(String jsessionId, String ltpaToken2) {
-			this.ltpaToken2 = ltpaToken2;
-		}
-		public String getLtpaToken2() {
-			return ltpaToken2;
-		}
-		@Override
-		public boolean isValid() {
-			return StringUtil.isNotEmpty(ltpaToken2);
-		}
-		@Override
-		public Map<String,String> getAuthenticationHeaders() {
-			if(isValid()) {
-				String cookies="";
-				//cookies = appendCookie(cookies, "JSESSIONID", jsessionId);
-				cookies = appendCookie(cookies, "LtpaToken2", ltpaToken2);
-				return Collections.singletonMap("Cookie", cookies);
-			}
-			return null;
-		}
-		private String appendCookie(String cookies, String name, String value) {
-			if(StringUtil.isNotEmpty(value)) {
-				if(cookies!=null) {
-					cookies += ";";
-				}
-				cookies += name + "=" + value;
-			}
-			return cookies;
-		}
-		@Override
-		public String toString() {
-			return jsessionId+"|"+ltpaToken2;
-		}
-		@Override
-		public void fromString(String s) {
-			int pos = s.indexOf('|');
-			if(pos>=0) {
-				jsessionId = s.substring(0, pos);
-				ltpaToken2 = s.substring(pos+1);
-			} else {
-				jsessionId = null;
-				ltpaToken2 = null;
-			}
-		}
-	}
-
-//			Cookie[] ck = httpRequest.getCookies();
-//			if(ck!=null) {
-//				for(int i=0; i<ck.length; i++) {
-//					String name = ck[i].getName(); 
-//					if(name!=null) {
-//						if(name.equals("LtpaToken2")) {
-//							return true;
-//						}
-//					}
-//				}
-//			}
 	
 	private static ThreadLocal<ConnectionsSession> sessions = new ThreadLocal<ConnectionsSession>();
 	public static ConnectionsSession get() {
@@ -198,17 +133,14 @@ public class ConnectionsSession {
 			c.setTrustAllSSLCertificates(getConnections().isTrustSSLCertificates());
 			return c;
 		} else {
-			String jsessionId = null;
 			String ltpaToken2 = null;
 			Cookie[] ck = request.getCookies();
 			for(int i=0; i<ck.length; i++) {
-				if(ck[i].getName().equalsIgnoreCase("JSESSIONID")) {
-					jsessionId = ck[i].getValue();
-				} else if(ck[i].getName().equalsIgnoreCase("LtpaToken2")) {
+				if(ck[i].getName().equalsIgnoreCase("LtpaToken2")) {
 					ltpaToken2 = ck[i].getValue();
 				}
 			}
-			LtpaToken2Authenticator auth = new LtpaToken2Authenticator(jsessionId,ltpaToken2);
+			HttpClient.LtpaToken2Authenticator auth = new HttpClient.LtpaToken2Authenticator(ltpaToken2);
 			HttpClient c = Platform.getService(HttpClientService.class).createHttpClient(getConnections().getUrl(),auth);
 			c.setTrustAllSSLCertificates(getConnections().isTrustSSLCertificates());
 			return c;
