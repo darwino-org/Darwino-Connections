@@ -179,7 +179,7 @@ public class DemoConnectionsFilter extends ConnectionsFilter {
 	protected ConnectionsOnPrem createConnectionsOnPremSSO() {
 		try {
 			// We hard code the machine here... 
-			String url = "https://tglc5demo.triloggroup.com";	
+			String url = "https://tglc5dev.triloggroup.com";	
 			return new ConnectionsOnPrem(url);
 		} catch(Exception e) {
 			e.printStackTrace();
